@@ -238,6 +238,22 @@ def page_dashboard() -> None:
 
     footer()
 
+def linked_input(label, lo, hi, default, key, step=1):
+    nk, sk = f"{key}_num", f"{key}_sld"
+    if nk not in st.session_state:
+        st.session_state[nk] = default
+        st.session_state[sk] = default
+
+    def from_num():
+        st.session_state[sk] = st.session_state[nk]
+
+    def from_sld():
+        st.session_state[nk] = st.session_state[sk]
+
+    st.number_input(label, min_value=lo, max_value=hi, step=step, key=nk, on_change=from_num)
+    st.slider("ปรับด้วยตัวเลื่อน", min_value=lo, max_value=hi, step=step,
+              key=sk, on_change=from_sld, label_visibility="collapsed")
+    return st.session_state[nk]
 
 def page_predict() -> None:
     hero("📡 AI · Binary Classification · Decision Tree", "ทำนายโอกาสเปิดบัญชี", APP_SUBTITLE)
@@ -266,14 +282,14 @@ def page_predict() -> None:
         st.markdown('<div class="section-title">📝 ข้อมูลที่ใช้ทำนาย</div>', unsafe_allow_html=True)
         picked = st.selectbox("ลูกค้า (ไม่บังคับ — เลือกเพื่อให้ขึ้นชื่อในผลทำนาย/ประวัติ)", options)
 
-        duration = st.slider("ระยะเวลาโทรคุยครั้งล่าสุด (วินาที)", 2, 3881, 300, step=10)
+        duration = linked_input("ระยะเวลาโทรคุยครั้งล่าสุด (วินาที)", 2, 3881, 300, "dur")
         st.caption(f"≈ {duration // 60} นาที {duration % 60} วินาที")
         row["duration"] = minmax("duration", duration)
         log_extra["ระยะเวลาโทร(วิ)"] = duration
 
         if model_choice == MODEL_2F:
             never_contacted = st.checkbox("ลูกค้ารายนี้ยังไม่เคยถูกติดต่อจากแคมเปญก่อนหน้าเลย", value=True)
-            pdays = -1 if never_contacted else st.slider("จำนวนวันตั้งแต่ถูกติดต่อครั้งก่อนหน้า (pdays)", 0, 854, 30)
+            pdays = -1 if never_contacted else linked_input("จำนวนวันตั้งแต่ถูกติดต่อครั้งก่อนหน้า (pdays)", 0, 854, 30, "pd")
             if never_contacted:
                 st.caption("pdays = -1 (ยังไม่เคยติดต่อ)")
             row["pdays"] = minmax("pdays", pdays)
