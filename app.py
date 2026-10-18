@@ -255,6 +255,27 @@ def linked_input(label, lo, hi, default, key, step=1):
               key=sk, on_change=from_sld, label_visibility="collapsed")
     return st.session_state[nk]
 
+def explain_path(model, X):
+    t = model.tree_
+    names = list(model.feature_names_in_)
+    x32 = X.to_numpy(dtype="float32")
+    steps = []
+    for n in model.decision_path(X).indices:
+        if t.children_left[n] == -1:
+            continue
+        j = t.feature[n]
+        f = names[j]
+        lo, hi = RANGES[f]
+        thr = round(t.threshold[n] * (hi - lo) + lo, 1) + 0.0
+        left = x32[0, j] <= t.threshold[n]
+        if f == "duration":
+            steps.append(f"ระยะเวลาสนทนา {'≤' if left else '>'} {thr:g} วินาที")
+        elif thr == 0:
+            steps.append("ยังไม่เคยถูกติดต่อ (pdays = −1)" if left else "เคยถูกติดต่อมาก่อน")
+        else:
+            steps.append(f"pdays {'≤' if left else '>'} {thr:g} วัน")
+    return steps
+
 def page_predict() -> None:
     hero("📡 AI · Binary Classification · Decision Tree", "ทำนายโอกาสเปิดบัญชี", APP_SUBTITLE)
 
@@ -289,7 +310,7 @@ def page_predict() -> None:
 
         if model_choice == MODEL_2F:
             never_contacted = st.checkbox("ลูกค้ารายนี้ยังไม่เคยถูกติดต่อจากแคมเปญก่อนหน้าเลย", value=True)
-            pdays = -1 if never_contacted else linked_input("จำนวนวันตั้งแต่ถูกติดต่อครั้งก่อนหน้า (pdays)", 0, 854, 30, "pd")
+            pdays = -1 if never_contacted else linked_input("จำนวนวันตั้งแต่ถูกติดต่อครั้งก่อนหน้า (pdays)", 1, 854, 30, "pd")
             if never_contacted:
                 st.caption("pdays = -1 (ยังไม่เคยติดต่อ)")
             row["pdays"] = minmax("pdays", pdays)
@@ -343,7 +364,10 @@ def page_predict() -> None:
 <div class="label" style="margin-top:12px;">💡 {tip}</div></div>""",
             unsafe_allow_html=True,
         )
-
+        
+        steps = explain_path(model, X)
+        st.markdown("**เงื่อนไขที่ใช้ตัดสิน:** " + " → ".join(steps))
+        
         add_history({
             "ผู้บันทึก": st.session_state["auth_user"]["display"],
             "ลูกค้า": cust_name,
