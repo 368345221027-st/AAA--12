@@ -27,7 +27,7 @@ HISTORY_COLS = [
     "ผลทำนาย", "ความน่าจะเป็น(%)",
 ]
 MODEL_2F = "2 ฟีเจอร์ (duration, pdays)"
-MODEL_8F = "8 ฟีเจอร์ (age, balance, duration, campaign, previous, default, housing, loan)"
+
 
 USERS = {
     "admin": {"password": "1234", "display": "ผู้ดูแลระบบ"},
@@ -315,33 +315,7 @@ def page_predict() -> None:
                 st.caption("pdays = -1 (ยังไม่เคยติดต่อ)")
             row["pdays"] = minmax("pdays", pdays)
             log_extra["วันตั้งแต่ติดต่อครั้งก่อน(pdays)"] = pdays
-        else:
-            c1, c2 = st.columns(2)
-            with c1:
-                age = st.slider("อายุ (ปี)", 18, 95, 40)
-            with c2:
-                balance = st.number_input("ยอดเงินคงเหลือในบัญชี (balance)", -6847, 81204, 1000, step=100)
-            c3, c4, c5 = st.columns(3)
-            with c3:
-                default = st.radio("มีหนี้ผิดนัดชำระ", ["ไม่มี", "มี"], horizontal=True)
-            with c4:
-                housing = st.radio("มีสินเชื่อบ้าน", ["ไม่มี", "มี"], horizontal=True)
-            with c5:
-                loan = st.radio("มีสินเชื่อส่วนบุคคล", ["ไม่มี", "มี"], horizontal=True)
-            campaign = st.slider("จำนวนครั้งที่ติดต่อในแคมเปญนี้", 1, 63, 2)
-            previous = st.slider("จำนวนครั้งที่เคยติดต่อก่อนแคมเปญนี้", 0, 58, 0)
 
-            row.update({
-                "age": minmax("age", age), "balance": minmax("balance", balance),
-                "campaign": minmax("campaign", campaign), "previous": minmax("previous", previous),
-                "default": 1 if default == "มี" else 0, "housing": 1 if housing == "มี" else 0,
-                "loan": 1 if loan == "มี" else 0,
-            })
-            log_extra.update({
-                "อายุ": age, "ยอดเงินคงเหลือ": balance, "จำนวนติดต่อแคมเปญนี้": campaign,
-                "จำนวนติดต่อก่อนหน้า": previous, "ผิดนัดชำระ": default,
-                "สินเชื่อบ้าน": housing, "สินเชื่อส่วนบุคคล": loan,
-            })
 
     if st.button("🔍 ทำนายโอกาส", type="primary"):
         X = pd.DataFrame([row])[list(model.feature_names_in_)]
