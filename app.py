@@ -13,8 +13,8 @@ MEMBERS = "น.ส.ขวัญฤทัย โพธิ์สุวรรณ, �
 DATASET_URL = "https://www.kaggle.com/datasets/janiobachmann/bank-marketing-dataset"
 
 BASE_DIR = Path(__file__).parent
-MODEL_2F_PATH = BASE_DIR / "bank_tree_2f.joblib"
-MODEL_8F_PATH = BASE_DIR / "bank_tree_8f.joblib"
+MODEL_2F_PATH = BASE_DIR / "bank_tree_V3.joblib"
+
 CUSTOMER_PATH = BASE_DIR / "customers.csv"
 HISTORY_PATH = BASE_DIR / "predictions.csv"
 
@@ -242,8 +242,8 @@ def page_dashboard() -> None:
 def page_predict() -> None:
     hero("📡 AI · Binary Classification · Decision Tree", "ทำนายโอกาสเปิดบัญชี", APP_SUBTITLE)
 
-    model_choice = st.radio("เลือกโมเดลที่ใช้ทำนาย", [MODEL_2F, MODEL_8F], horizontal=True)
-    model_path = MODEL_2F_PATH if model_choice == MODEL_2F else MODEL_8F_PATH
+    model_choice = MODEL_2F
+    model_path = MODEL_2F_PATH
 
     try:
         model = load_model(str(model_path))
@@ -457,10 +457,10 @@ def page_about() -> None:
             "ความสำคัญในการติดต่อลูกค้าได้อย่างมีประสิทธิภาพมากขึ้น"
         )
     with st.container(border=True):
-        st.markdown("#### 🧠 โมเดลที่ใช้ (เลือกได้ 2 แบบในหน้าทำนาย)")
-        st.write("ทั้งสองแบบเป็น Decision Tree Classifier (max_depth=3) · Binary Classification: เปิดบัญชี / ไม่เปิดบัญชี")
-        st.write(f"**{MODEL_2F}** — Accuracy บนชุดทดสอบ: 75.77%")
-        st.write(f"**{MODEL_8F}** — Accuracy บนชุดทดสอบ: 75.64%")
+        st.markdown("#### 🧠 โมเดลที่ใช้")
+        st.write("Decision Tree Classifier (max_depth=3) · Binary Classification: เปิดบัญชี / ไม่เปิดบัญชี")
+        st.write(f"**{MODEL_2F}** — Accuracy บนชุดทดสอบ: 76.80%")
+
         st.markdown(f"ชุดข้อมูลต้นฉบับ: [Bank Marketing Dataset]({DATASET_URL})")
     with st.container(border=True):
         st.markdown("#### 👥 สมาชิกกลุ่ม")
