@@ -99,11 +99,9 @@ def load_model(path_str: str):
     return joblib.load(Path(path_str))
 
 
-# ช่วง min/max ที่ใช้ทำ Min-Max scaling ตอนเทรน (โมเดลเรียนจากข้อมูลสเกล 0-1)
-# duration: ยืนยันแล้วจากข้อมูลจริงในสมุดโน้ต (ตรงกับค่าดั้งเดิมของชุดข้อมูลพอดี)
-# pdays: ค่าต่ำสุด -1 หมายถึง "ยังไม่เคยถูกติดต่อมาก่อน" ค่าสูงสุดอ้างอิงจากชุดข้อมูล
-#        Bank Marketing (11,162 แถว) มาตรฐาน — ควรตรวจสอบกับ df["pdays"].max() ก่อน scale จริงอีกครั้ง
-# age / balance / campaign / previous: ช่วงของโมเดล 8 ฟีเจอร์ชุดเดิม
+# ช่วง min/max ที่ใช้ทำ Min-Max scaling (โมเดลเรียนจากข้อมูลสเกล 0-1)
+# ค่าต่ำสุด/สูงสุดของข้อมูลทั้งชุด Bank Marketing (11,162 แถว)
+# ตรงกับ results.json คีย์ data.ranges (paper_experiments.ipynb cell 3)
 RANGES = {
     "duration": (2, 3881),
     "pdays": (-1, 854),
